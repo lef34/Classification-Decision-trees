@@ -1,0 +1,123 @@
+#Question 1
+
+#Correletion
+
+read.csv("C:/Users/Lefteris/Desktop/dataA4.txt", sep="", stringsAsFactors=TRUE)
+
+rcorr(as.matrix(dataA4),type = 'pearson')
+
+
+#Multiple Regression model
+
+modellm=lm(SalePr~ YrHgt + PrctFFB + Frame + BkFat + SaleHt + SaleWt + FtFrBody,data = dataA4)
+
+summary(modellm)
+
+#Multicollinearity
+
+vif(modellm)
+
+#Ridge Regression model
+
+dataA4sc=scale(dataA4)
+dataA4sc=as.data.frame(dataA4sc)
+modelridge=lm.ridge(SalePr~ YrHgt + PrctFFB + Frame + BkFat + SaleHt + SaleWt + FtFrBody,data = dataA4sc,lambda = seq(0,100,1))
+
+#Value for lambda
+
+select(lm.ridge(SalePr~ YrHgt + PrctFFB + Frame + BkFat + SaleHt + SaleWt + FtFrBody,data = dataA4sc,lambda = seq(0,100,1)))
+
+#New coefficients with lambda=10
+
+modelridgeOtp=lm.ridge(SalePr~ YrHgt + PrctFFB + Frame + BkFat + SaleHt + SaleWt + FtFrBody,data = 
+dataA4sc,lambda = 10)
+coef(modelridgeOtp)
+
+#New sale price equals with y = -3156.8944+(25.9314)*(YrHgt)+(-30.0976)*(PrctFFB)+(360.3168)*(Frame)+(2571.55)*(BkFat)+(84.3969)*(SaleHt)+(0.3634)*(SaleWt)+(-2.2012)*(FtFrbody)
+
+y1 = -3156.8944+(25.9314)*(51.3)+(-30.0976)*(72.4)+(360.3168)*(5)+(2571.55)*(0.15)+(84.3969)*(52.5)+(0.3634)*(1620)+(-2.2012)*(990)= 1021.994
+y2= -3156.8944+(25.9314)*(52.5)+(-30.0976)*(66.3)+(360.3168)*(6)+(2571.55)*(0.10)+(84.3969)*(52.3)+(0.3634)*(1580)+(-2.2012)*(1110)= 1172.8
+y3 = -3156.8944+(25.9314)*(50.6)+(-30.0976)*(69.5)+(360.3168)*(8)+(2571.55)*(0.15)+(84.3969)*(51.1)+(0.3634)*(1430)+(-2.2012)*(1230)=1456.586
+y4 = -3156.8944+(25.9314)*(48.4)+(-30.0976)*(74.3)+(360.3168)*(7)+(2571.55)*(0.2)+(84.3969)*(55.9)+(0.3634)*(1210)+(-2.2012)*(1040)=1766.714
+y5 = -3156.8944+(25.9314)*(47.6)+(-30.0976)*(70.5)+(360.3168)*(6)+(2571.55)*(0.15)+(84.3969)*(54.8)+(0.3634)*(1370)+(-2.2012)*(988)=1451.215
+
+
+#MSE
+
+y=c(y1,y2,y3,y4,y5)#pred
+x=c(1425,1650,1800,1725,1250)#actual
+
+MSE(y,x) = 110042.4
+
+
+#We can also use the following code to get the same results for MSE
+
+data= data.frame(pred = y,actual = x)
+data
+mean((data$actual-data$pred)^2)
+
+#Question 2
+
+
+#Attempt to explain how the variable is affected by the rest of the varibles
+
+set.seed(17238)
+Xmatrix=dataA4[,-1]
+Xmatrix
+Yfactor=as.factor(dataA4[,1])
+PLSDA.model= caret::plsda(x=Xmatrix,y=Yfactor,ncomp=8 )
+biplot(PLSDA.model)
+
+#Question 3
+
+
+#Decision Tree
+
+mtree=rpart(
+ Breed~.,
+ data = dataA4,
+ method = "class",
+ parms = list(split='information'),
+ 
+ )
+ 
+prp(mtree,faclen=0,cex = 0.8, extra = 1)
+mtree
+
+
+datapred=predict(mtree, newdata = dataA4, type = "class")
+conf_matrix=table(dataA4$Breed,datapred)
+conf_matrix
+
+
+sum(diag(conf_matrix))/sum(conf_matrix) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
